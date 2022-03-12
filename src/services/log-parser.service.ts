@@ -99,7 +99,9 @@ export class LogParserService {
       if (isValid) {
         return {
           timestamp: parsedTimestamp.unix(),
-          ...parsedLog,
+          loglevel: status,
+          transactionId: parsedLog?.transactionId,
+          err: parsedLog?.details,
         };
       }
 
