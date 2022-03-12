@@ -58,13 +58,16 @@ export class LogParserService {
         });
 
         rl.on('close', () => {
-          const stream = fs.createWriteStream(
-            this.outputFilePath || `./output-${new Date().getTime()}`
-          );
-          stream.write(JSON.stringify(output, null, 2));
-          stream.end(() => {
-            return resolve();
-          });
+          if (output.length) {
+            const stream = fs.createWriteStream(
+              this.outputFilePath || `./output-${new Date().getTime()}`
+            );
+            stream.write(JSON.stringify(output, null, 2), () => {
+              resolve();
+            });
+          } else {
+            resolve();
+          }
         });
 
         await events.once(rl, 'close');
@@ -76,22 +79,33 @@ export class LogParserService {
   };
 
   lineReader = (line: string): Object | undefined => {
-    const [timestamp, status, log] = line.split(' - ');
-    const parsedTimestamp = dayjs(timestamp);
-    const parsedLog = JSON.parse(log);
-    const isValidTimestamp = parsedTimestamp.isValid();
-    const isValidStatus = status === this.logType;
-    const isValidLogShape = log.startsWith('{') && log.endsWith('}');
+    try {
+      const [timestamp, status, log] = line.split(' - ');
 
-    const isValid = isValidTimestamp && isValidStatus && isValidLogShape;
+      if (!log) {
+        return null;
+      }
 
-    if (isValid) {
-      return {
-        timestamp: parsedTimestamp.unix(),
-        ...parsedLog,
-      };
+      const parsedTimestamp = dayjs(timestamp);
+      const parsedLog = JSON.parse(log);
+      const isValidTimestamp = parsedTimestamp.isValid();
+      const isValidStatus = status === this.logType;
+      const isValidLogShape =
+        log.startsWith('{') && log.endsWith('}') && log.length > 2;
+
+      const isValid =
+        log && isValidTimestamp && isValidStatus && isValidLogShape;
+
+      if (isValid) {
+        return {
+          timestamp: parsedTimestamp.unix(),
+          ...parsedLog,
+        };
+      }
+
+      return null;
+    } catch (error) {
+      return null;
     }
-
-    return null;
   };
 }

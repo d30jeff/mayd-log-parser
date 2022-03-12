@@ -47,7 +47,6 @@ describe('Log Parser Service', () => {
       try {
         await parser.process();
         await validateFilePath(outputFilePath);
-        await Promise.resolve();
       } catch (error) {
         expect(error).toBeUndefined();
       }
@@ -153,6 +152,89 @@ describe('Log Parser Service', () => {
           const json = JSON.parse(data);
 
           expect(json.length).toEqual(1);
+        });
+      } catch (error) {
+        expect(error).toBeUndefined();
+      }
+    });
+  });
+
+  describe('Should Validate Log', () => {
+    it('Exclude Line With Invalid Timestamp', async () => {
+      const outputFilePath = join(
+        __dirname,
+        '../../tests/output-info-some-invalid-timestamp.json'
+      );
+      const parser = services.logParser({
+        inputFilePath: join(
+          __dirname,
+          '../../tests/info-some-invalid-timestamp'
+        ),
+        outputFilePath,
+        logType: LogType.Info,
+      });
+
+      try {
+        await parser.process();
+        fs.readFile(outputFilePath, 'utf-8', (error, data) => {
+          if (error) {
+            return Promise.reject();
+          }
+          const json = JSON.parse(data);
+
+          expect(json.length).toEqual(1);
+        });
+      } catch (error) {
+        expect(error).toBeUndefined();
+      }
+    });
+
+    it('Exclude Line With Invalid Log Type', async () => {
+      const outputFilePath = join(
+        __dirname,
+        '../../tests/output-info-some-invalid-type.json'
+      );
+      const parser = services.logParser({
+        inputFilePath: join(__dirname, '../../tests/info-some-invalid-type'),
+        outputFilePath,
+        logType: LogType.Info,
+      });
+
+      try {
+        await parser.process();
+        fs.readFile(outputFilePath, 'utf-8', (error, data) => {
+          if (error) {
+            return Promise.reject();
+          }
+          const json = JSON.parse(data);
+
+          expect(json.length).toEqual(2);
+        });
+      } catch (error) {
+        expect(error).toBeUndefined();
+      }
+    });
+
+    it('Exclude Line With Invalid Log Message', async () => {
+      const outputFilePath = join(
+        __dirname,
+        '../../tests/output-info-some-invalid-message.json'
+      );
+      const parser = services.logParser({
+        inputFilePath: join(__dirname, '../../tests/info-some-invalid-message'),
+        outputFilePath,
+        logType: LogType.Info,
+      });
+
+      try {
+        await parser.process();
+        fs.readFile(outputFilePath, 'utf-8', (error, data) => {
+          if (error) {
+            return Promise.reject();
+          }
+          const json = JSON.parse(data);
+
+          expect(json.length).toEqual(2);
         });
       } catch (error) {
         expect(error).toBeUndefined();

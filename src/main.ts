@@ -1,3 +1,4 @@
+require('source-map-support').install();
 import minimist from 'minimist';
 import { services } from '@services/index.service';
 import { LogType } from '@services/log-parser.service';
@@ -8,7 +9,7 @@ async function main() {
   const parser = services.logParser({
     inputFilePath: arg.input,
     outputFilePath: arg.output,
-    logType: LogType.Debug,
+    logType: LogType.Error,
   });
 
   await parser.process();
