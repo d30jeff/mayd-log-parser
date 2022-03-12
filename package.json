@@ -6,12 +6,14 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "main": "node -r module-alias/register dist/main.js",
-    "main:dev": "tsc-watch --onSuccess \"yarn main\""
+    "main:dev": "tsc-watch --onSuccess \"yarn main\"",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.4.1",
     "@types/signale": "^1.4.4",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
     "@typescript-eslint/parser": "^4.28.0",
@@ -25,6 +27,7 @@
     "module-alias": "^2.2.2",
     "prettier": "^2.3.1",
     "source-map-support": "^0.5.19",
+    "ts-jest": "^27.1.3",
     "tsc-watch": "^4.6.2",
     "typescript": "^4.6.2"
   },

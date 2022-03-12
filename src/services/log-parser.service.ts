@@ -36,41 +36,43 @@ export class LogParserService {
     return validateFilePath(this.inputFilePath);
   };
 
-  validateOutputFilePath = () => {
-    return validateFilePath(this.outputFilePath);
-  };
-
   process = async () => {
-    try {
-      await this.validateInputFilePath();
+    return new Promise<void>(async (resolve, reject) => {
+      try {
+        await this.validateInputFilePath();
 
-      const rl = readline.createInterface({
-        input: fs.createReadStream(this.inputFilePath),
-        crlfDelay: Infinity,
-      });
+        const rl = readline.createInterface({
+          input: fs.createReadStream(this.inputFilePath),
+          crlfDelay: Infinity,
+        });
 
-      const output = [];
+        const output = [];
 
-      rl.on('line', (line) => {
-        const parsedLine = this.lineReader(line);
-        if (parsedLine) {
-          output.push(parsedLine);
-        }
+        rl.on('line', (line) => {
+          const parsedLine = this.lineReader(line);
+          if (parsedLine) {
+            output.push(parsedLine);
+          }
 
-        this.lineNumber += 1;
-      });
+          this.lineNumber += 1;
+        });
 
-      rl.on('close', () => {
-        const stream = fs.createWriteStream(
-          this.outputFilePath || `./output-${new Date().getTime()}`
-        );
-        stream.write(JSON.stringify(output, null, 2));
-      });
+        rl.on('close', () => {
+          const stream = fs.createWriteStream(
+            this.outputFilePath || `./output-${new Date().getTime()}`
+          );
+          stream.write(JSON.stringify(output, null, 2));
+          stream.end(() => {
+            return resolve();
+          });
+        });
 
-      await events.once(rl, 'close');
-    } catch (error) {
-      this.logger.fatal('Something went wrong', error);
-    }
+        await events.once(rl, 'close');
+      } catch (error) {
+        this.logger.fatal('Something went wrong', error);
+        return reject(error);
+      }
+    });
   };
 
   lineReader = (line: string): Object | undefined => {
