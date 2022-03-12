@@ -1,8 +1,21 @@
-import { program } from 'commander';
+import minimist from 'minimist';
 import { services } from '@services/index.service';
+import { LogType } from '@services/log-parser.service';
 
-program.option('--input').option('-i, --separator <file-input-path>');
+const arg = minimist(process.argv.slice(2));
 
-program.parse();
+async function main() {
+  const parser = services.logParser({
+    inputFilePath: arg.input,
+    outputFilePath: arg.output,
+    logType: LogType.Debug,
+  });
 
-console.log(program);
+  await parser.process();
+}
+
+try {
+  main();
+} catch (error) {
+  console.error('Something went wrong', error);
+}

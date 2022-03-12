@@ -1,5 +1,10 @@
-import { FileReaderService } from '@services/file-reader.service';
+import {
+  FileReaderProps,
+  LogParserService,
+} from '@services/log-parser.service';
 
 export const services = {
-  fileReader: new FileReaderService({}),
+  logParser: (params: FileReaderProps): LogParserService => {
+    return new LogParserService(params);
+  },
 };
