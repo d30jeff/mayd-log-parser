@@ -12,7 +12,7 @@ export enum LogType {
   Warn = 'warn',
 }
 
-export interface FileReaderProps {
+export interface LogParserServiceProps {
   inputFilePath: string;
   outputFilePath?: string;
   logType?: LogType;
@@ -25,7 +25,7 @@ export class LogParserService {
   logType: LogType = LogType.Error;
   lineNumber = 0;
 
-  constructor(params: FileReaderProps) {
+  constructor(params: LogParserServiceProps) {
     const { inputFilePath, outputFilePath, logType } = params;
     this.inputFilePath = inputFilePath;
     this.outputFilePath = outputFilePath;
