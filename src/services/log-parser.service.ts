@@ -29,6 +29,7 @@ export class LogParserService {
     const { inputFilePath, outputFilePath, logType } = params;
     this.inputFilePath = inputFilePath;
     this.outputFilePath = outputFilePath;
+    // Validation for given logType
     this.logType = logType;
   }
 
@@ -46,12 +47,13 @@ export class LogParserService {
           crlfDelay: Infinity,
         });
 
-        const output = [];
+        let output = [];
 
         rl.on('line', (line) => {
           const parsedLine = this.lineReader(line);
           if (parsedLine) {
-            output.push(parsedLine);
+            console.log(parsedLine);
+            output = output.concat(parsedLine);
           }
 
           this.lineNumber += 1;
@@ -80,7 +82,8 @@ export class LogParserService {
 
   lineReader = (line: string): Object | undefined => {
     try {
-      const [timestamp, status, log] = line.split(' - ');
+      const [timestamp, status, ...remainder] = line.split(' - ');
+      const log = remainder.join(' - ');
 
       if (!log) {
         return null;
@@ -94,19 +97,37 @@ export class LogParserService {
         log.startsWith('{') && log.endsWith('}') && log.length > 2;
 
       const isValid =
-        log && isValidTimestamp && isValidStatus && isValidLogShape;
+        parsedLog && isValidTimestamp && isValidStatus && isValidLogShape;
 
       if (isValid) {
-        return {
-          timestamp: parsedTimestamp.unix(),
-          loglevel: status,
-          transactionId: parsedLog?.transactionId,
-          err: parsedLog?.details,
-        };
+        switch (this.logType) {
+          case LogType.Info:
+            {
+              if (parsedLog.details === 'Service is started') {
+                return {
+                  timestamp: parsedTimestamp.unix(),
+                  transactionId: parsedLog?.transactionId,
+                };
+              }
+            }
+            break;
+
+          default:
+            {
+              return {
+                timestamp: parsedTimestamp.unix(),
+                loglevel: status,
+                transactionId: parsedLog?.transactionId,
+                err: parsedLog?.details,
+              };
+            }
+            break;
+        }
       }
 
       return null;
     } catch (error) {
+      console.error(error);
       return null;
     }
   };
