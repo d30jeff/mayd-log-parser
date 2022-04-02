@@ -62,7 +62,7 @@
   },
   "dependencies": {
     "dayjs": "^1.10.8",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "signale": "^1.4.0"
   }
 }
